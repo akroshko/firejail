@@ -2,6 +2,13 @@
 ROOT = .
 -include config.mk
 
+# Default programs
+CC ?= cc
+CODESPELL ?= codespell
+CPPCHECK ?= cppcheck
+GAWK ?= gawk
+SCAN_BUILD ?= scan-build
+
 ifneq ($(HAVE_MAN),no)
 MAN_TARGET = man
 endif
@@ -173,21 +180,10 @@ clean:
 	$(MAKE) -C src/man clean
 	$(MAKE) -C test clean
 	rm -f $(SECCOMP_FILTERS)
-	rm -f firejail*.rpm
 	rm -f $(SYNTAX_FILES)
-	rm -f src/fnettrace/static-ip-map
-	rm -f test/utils/index.html*
-	rm -f test/utils/wget-log
-	rm -f test/utils/firejail-test-file*
-	rm -f test/utils/lstesting
-	rm -f test/environment/index.html*
-	rm -f test/environment/wget-log*
-	rm -fr test/environment/-testdir
-	rm -f test/environment/logfile*
-	rm -f test/environment/index.html
-	rm -f test/environment/wget-log
-	rm -f test/sysutils/firejail_t*
-	cd test/compile; ./compile.sh --clean; cd ../..
+	rm -fr ./$(TARNAME)-$(VERSION) ./$(TARNAME)-$(VERSION).tar.xz
+	rm -f ./$(TARNAME)*.deb
+	rm -f ./$(TARNAME)*.rpm
 
 .PHONY: distclean
 distclean: clean
@@ -235,6 +231,7 @@ endif
 	install -m 0644 -t $(DESTDIR)$(docdir) COPYING README RELNOTES etc/templates/*
 	# profiles and settings
 	install -m 0755 -d $(DESTDIR)$(sysconfdir)/firejail
+	install -m 0755 -d $(DESTDIR)$(sysconfdir)/firejail/firecfg.d
 	install -m 0644 -t $(DESTDIR)$(sysconfdir)/firejail src/firecfg/firecfg.config
 	install -m 0644 -t $(DESTDIR)$(sysconfdir)/firejail etc/profile-a-l/*.profile etc/profile-m-z/*.profile etc/inc/*.inc etc/net/*.net etc/firejail.config
 	sh -c "if [ ! -f $(DESTDIR)/$(sysconfdir)/firejail/login.users ]; then install -c -m 0644 etc/login.users $(DESTDIR)/$(sysconfdir)/firejail/.; fi;"
@@ -338,7 +335,6 @@ DISTFILES_TEST = \
 
 .PHONY: dist
 dist: clean config.mk
-	rm -fr $(TARNAME)-$(VERSION) $(TARNAME)-$(VERSION).tar.xz
 	mkdir -p $(TARNAME)-$(VERSION)/test
 	cp -a $(DISTFILES) $(TARNAME)-$(VERSION)
 	cp -a $(DISTFILES_TEST) $(TARNAME)-$(VERSION)/test
@@ -368,19 +364,25 @@ extras: all
 
 .PHONY: cppcheck
 cppcheck: clean
-	cppcheck --force --error-exitcode=1 --enable=warning,performance .
+	$(CPPCHECK) --force --error-exitcode=1 --enable=warning,performance \
+	  -i src/firejail/checkcfg.c -i src/firejail/main.c .
+
+# For cppcheck 1.x; see .github/workflows/check-c.yml
+.PHONY: cppcheck-old
+cppcheck-old: clean
+	$(CPPCHECK) --force --error-exitcode=1 --enable=warning,performance .
 
 .PHONY: scan-build
 scan-build: clean
-	scan-build $(MAKE)
+	$(SCAN_BUILD) --status-bugs $(MAKE)
 
 # TODO: Old codespell versions (such as v2.1.0 in CI) have issues with
 # contrib/syscalls.sh
 .PHONY: codespell
 codespell:
 	@printf 'Running %s...\n' $@
-	@codespell --ignore-regex 'UE|als|chage|creat|doas|ether|isplay|readby|[Ss]hotcut' \
-	  -S *.gz,*.o,*.so \
+	@$(CODESPELL) --ignore-regex 'Manuel|UE|als|chage|creat|doas|ether|isplay|readby|[Ss]hotcut' \
+	  -S *.d,*.gz,*.o,*.so \
 	  -S COPYING,m4 \
 	  -S ./contrib/syscalls.sh \
 	  .
@@ -388,6 +390,10 @@ codespell:
 .PHONY: print-env
 print-env:
 	./ci/printenv.sh
+
+.PHONY: print-version
+print-version: config.mk
+	command -V $(TARNAME) && $(TARNAME) --version
 
 #
 # make test

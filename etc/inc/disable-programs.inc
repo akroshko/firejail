@@ -78,6 +78,7 @@ blacklist ${HOME}/.cache/PawelStolowski
 blacklist ${HOME}/.cache/Psi
 blacklist ${HOME}/.cache/QuiteRss
 blacklist ${HOME}/.cache/Quotient/quaternion
+blacklist ${HOME}/.cache/RawTherapee
 blacklist ${HOME}/.cache/Shortwave
 blacklist ${HOME}/.cache/Tox
 blacklist ${HOME}/.cache/Zeal
@@ -226,6 +227,7 @@ blacklist ${HOME}/.cache/torbrowser
 blacklist ${HOME}/.cache/transmission
 blacklist ${HOME}/.cache/ueberzugpp
 blacklist ${HOME}/.cache/ungoogled-chromium
+blacklist ${HOME}/.cache/virt-manager
 blacklist ${HOME}/.cache/vivaldi
 blacklist ${HOME}/.cache/vivaldi-snapshot
 blacklist ${HOME}/.cache/vlc
@@ -335,11 +337,13 @@ blacklist ${HOME}/.config/QuiteRssrc
 blacklist ${HOME}/.config/Quotient
 blacklist ${HOME}/.config/RSS Guard 4
 blacklist ${HOME}/.config/Rambox
+blacklist ${HOME}/.config/RawTherapee
 blacklist ${HOME}/.config/Riot
 blacklist ${HOME}/.config/Rocket.Chat
 blacklist ${HOME}/.config/RogueLegacy
 blacklist ${HOME}/.config/RogueLegacyStorageContainer
 blacklist ${HOME}/.config/Seafile
+blacklist ${HOME}/.config/Session
 blacklist ${HOME}/.config/Signal
 blacklist ${HOME}/.config/Sinew Software Systems
 blacklist ${HOME}/.config/Slack
@@ -411,9 +415,11 @@ blacklist ${HOME}/.config/com.github.bleakgrey.tootle
 blacklist ${HOME}/.config/com.lettura.dev
 blacklist ${HOME}/.config/corebird
 blacklist ${HOME}/.config/coyim
+blacklist ${HOME}/.config/curlrc
 blacklist ${HOME}/.config/d-feet
 blacklist ${HOME}/.config/darktable
 blacklist ${HOME}/.config/deadbeef
+blacklist ${HOME}/.config/deadlink
 blacklist ${HOME}/.config/deluge
 blacklist ${HOME}/.config/devilspie2
 blacklist ${HOME}/.config/digikam
@@ -446,6 +452,7 @@ blacklist ${HOME}/.config/flaska.net
 blacklist ${HOME}/.config/flowblade
 blacklist ${HOME}/.config/font-manager
 blacklist ${HOME}/.config/freecol
+blacklist ${HOME}/.config/fyne
 blacklist ${HOME}/.config/gajim
 blacklist ${HOME}/.config/galculator
 blacklist ${HOME}/.config/gallery-dl
@@ -455,6 +462,7 @@ blacklist ${HOME}/.config/geany
 blacklist ${HOME}/.config/geary
 blacklist ${HOME}/.config/gedit
 blacklist ${HOME}/.config/geeqie
+blacklist ${HOME}/.config/gh
 blacklist ${HOME}/.config/ghb
 blacklist ${HOME}/.config/ghostwriter
 blacklist ${HOME}/.config/git
@@ -478,6 +486,7 @@ blacklist ${HOME}/.config/google-chrome-beta
 blacklist ${HOME}/.config/google-chrome-unstable
 blacklist ${HOME}/.config/gpicview
 blacklist ${HOME}/.config/gramps
+blacklist ${HOME}/.config/green-recorder
 blacklist ${HOME}/.config/gthumb
 blacklist ${HOME}/.config/gummi
 blacklist ${HOME}/.config/guvcview2
@@ -521,6 +530,7 @@ blacklist ${HOME}/.config/kmplayerrc
 blacklist ${HOME}/.config/knotesrc
 blacklist ${HOME}/.config/konversation.notifyrc
 blacklist ${HOME}/.config/konversationrc
+blacklist ${HOME}/.config/koreader
 blacklist ${HOME}/.config/kritarc
 blacklist ${HOME}/.config/ktorrentrc
 blacklist ${HOME}/.config/ktouch2rc
@@ -646,6 +656,7 @@ blacklist ${HOME}/.config/synfig
 blacklist ${HOME}/.config/teams
 blacklist ${HOME}/.config/teams-for-linux
 blacklist ${HOME}/.config/telepathy-account-widgets
+blacklist ${HOME}/.config/textroom
 blacklist ${HOME}/.config/torbrowser
 blacklist ${HOME}/.config/totem
 blacklist ${HOME}/.config/tox
@@ -656,6 +667,7 @@ blacklist ${HOME}/.config/tuir
 blacklist ${HOME}/.config/tuta_integration
 blacklist ${HOME}/.config/tutanota-desktop
 blacklist ${HOME}/.config/tvbrowser
+blacklist ${HOME}/.config/tvnamer
 blacklist ${HOME}/.config/uGet
 blacklist ${HOME}/.config/ueberzugpp
 blacklist ${HOME}/.config/ungoogled-chromium
@@ -711,6 +723,7 @@ blacklist ${HOME}/.dosbox
 blacklist ${HOME}/.dropbox*
 blacklist ${HOME}/.easystroke
 blacklist ${HOME}/.electron-cache
+blacklist ${HOME}/.electron-cash
 blacklist ${HOME}/.electrum*
 blacklist ${HOME}/.elinks
 blacklist ${HOME}/.emacs
@@ -980,6 +993,7 @@ blacklist ${HOME}/.local/share/liferea
 blacklist ${HOME}/.local/share/linphone
 blacklist ${HOME}/.local/share/lobster
 blacklist ${HOME}/.local/share/local-mail
+blacklist ${HOME}/.local/share/localsend_app
 blacklist ${HOME}/.local/share/lollypop
 blacklist ${HOME}/.local/share/love
 blacklist ${HOME}/.local/share/lugaru
@@ -1219,6 +1233,7 @@ blacklist ${HOME}/Standard Notes Backups
 blacklist ${HOME}/TeamSpeak3-Client-linux_amd64
 blacklist ${HOME}/TeamSpeak3-Client-linux_x86
 blacklist ${HOME}/UpdateInfo
+blacklist ${HOME}/Zomboid
 blacklist ${HOME}/hyperrogue.ini
 blacklist ${HOME}/i2p
 blacklist ${HOME}/mps
@@ -1233,6 +1248,7 @@ blacklist ${RUNUSER}/qutebrowser
 blacklist /etc/ssmtp
 blacklist /tmp/.wine-*
 blacklist /tmp/akonadi-*
+blacklist /tmp/lwjgl_*
 blacklist /var/games/nethack
 blacklist /var/games/slashem
 blacklist /var/games/vulturesclaw

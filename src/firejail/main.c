@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Firejail Authors
+ * Copyright (C) 2014-2024 Firejail Authors
  *
  * This file is part of firejail project
  *
@@ -74,6 +74,8 @@ int arg_command = 0;				// -c
 int arg_overlay = 0;				// overlay option
 int arg_overlay_keep = 0;			// place overlay diff in a known directory
 int arg_overlay_reuse = 0;			// allow the reuse of overlays
+
+int arg_landlock_enforce = 0;		// enforce the Landlock ruleset
 
 int arg_seccomp = 0;				// enable default seccomp filter
 int arg_seccomp32 = 0;				// enable default seccomp filter for 32 bit arch
@@ -1500,6 +1502,20 @@ int main(int argc, char **argv, char **envp) {
 			else
 				exit_err_feature("seccomp");
 		}
+#ifdef HAVE_LANDLOCK
+		else if (strncmp(argv[i], "--landlock.enforce", 18) == 0)
+			arg_landlock_enforce = 1;
+		else if (strncmp(argv[i], "--landlock.fs.read=", 19) == 0)
+			ll_add_profile(LL_FS_READ, argv[i] + 19);
+		else if (strncmp(argv[i], "--landlock.fs.write=", 20) == 0)
+			ll_add_profile(LL_FS_WRITE, argv[i] + 20);
+		else if (strncmp(argv[i], "--landlock.fs.makeipc=", 22) == 0)
+			ll_add_profile(LL_FS_MAKEIPC, argv[i] + 22);
+		else if (strncmp(argv[i], "--landlock.fs.makedev=", 22) == 0)
+			ll_add_profile(LL_FS_MAKEDEV, argv[i] + 22);
+		else if (strncmp(argv[i], "--landlock.fs.execute=", 22) == 0)
+			ll_add_profile(LL_FS_EXEC, argv[i] + 22);
+#endif
 		else if (strcmp(argv[i], "--memory-deny-write-execute") == 0) {
 			if (checkcfg(CFG_SECCOMP))
 				arg_memory_deny_write_execute = 1;
@@ -1572,7 +1588,7 @@ int main(int argc, char **argv, char **envp) {
 			arg_trace = 1;
 		else if (strncmp(argv[i], "--trace=", 8) == 0) {
 			arg_trace = 1;
-			arg_tracefile = argv[i] + 8;
+			arg_tracefile = expand_macros(argv[i] + 8);
 			if (*arg_tracefile == '\0') {
 				fprintf(stderr, "Error: invalid trace option\n");
 				exit(1);
@@ -1581,13 +1597,6 @@ int main(int argc, char **argv, char **envp) {
 			if (strstr(arg_tracefile, "..") || has_cntrl_chars(arg_tracefile)) {
 				fprintf(stderr, "Error: invalid file name %s\n", arg_tracefile);
 				exit(1);
-			}
-			// if the filename starts with ~, expand the home directory
-			if (*arg_tracefile == '~') {
-				char *tmp;
-				if (asprintf(&tmp, "%s%s", cfg.homedir, arg_tracefile + 1) == -1)
-					errExit("asprintf");
-				arg_tracefile = tmp;
 			}
 		}
 		else if (strcmp(argv[i], "--tracelog") == 0) {
@@ -1820,33 +1829,6 @@ int main(int argc, char **argv, char **envp) {
 				exit_err_feature("overlayfs");
 		}
 #endif
-#ifdef HAVE_FIRETUNNEL
-		else if (strcmp(argv[i], "--tunnel") == 0) {
-			// try to connect to the default client side of the tunnel
-			// if this fails, try the default server side of the tunnel
-			if (access("/run/firetunnel/ftc", R_OK) == 0)
-				profile_read("/run/firetunnel/ftc");
-			else if (access("/run/firetunnel/fts", R_OK) == 0)
-				profile_read("/run/firetunnel/fts");
-			else {
-				fprintf(stderr, "Error: no default firetunnel found, please specify it using --tunnel=devname option\n");
-				exit(1);
-			}
-		}
-		else if (strncmp(argv[i], "--tunnel=", 9) == 0) {
-			char *fname;
-
-			if (asprintf(&fname, "/run/firetunnel/%s", argv[i] + 9) == -1)
-				errExit("asprintf");
-			invalid_filename(fname, 0); // no globbing
-			if (access(fname, R_OK) == 0)
-				profile_read(fname);
-			else {
-				fprintf(stderr, "Error: tunnel not found\n");
-				exit(1);
-			}
-		}
-#endif
 		else if (strncmp(argv[i], "--include=", 10) == 0) {
 			char *ppath = expand_macros(argv[i] + 10);
 			if (!ppath)
@@ -1953,20 +1935,13 @@ int main(int argc, char **argv, char **envp) {
 				}
 
 				// extract chroot dirname
-				cfg.chrootdir = argv[i] + 9;
+				cfg.chrootdir = expand_macros(argv[i] + 9);
 				if (*cfg.chrootdir == '\0') {
 					fprintf(stderr, "Error: invalid chroot option\n");
 					exit(1);
 				}
 				invalid_filename(cfg.chrootdir, 0); // no globbing
 
-				// if the directory starts with ~, expand the home directory
-				if (*cfg.chrootdir == '~') {
-					char *tmp;
-					if (asprintf(&tmp, "%s%s", cfg.homedir, cfg.chrootdir + 1) == -1)
-						errExit("asprintf");
-					cfg.chrootdir = tmp;
-				}
 				// check chroot directory
 				fs_check_chroot_dir();
 			}
@@ -2748,16 +2723,7 @@ int main(int argc, char **argv, char **envp) {
 		else if (strncmp(argv[i], "--netfilter=", 12) == 0) {
 			if (checkcfg(CFG_NETWORK)) {
 				arg_netfilter = 1;
-				arg_netfilter_file = argv[i] + 12;
-
-				// expand tilde
-				if (*arg_netfilter_file == '~') {
-					char *tmp;
-					if (asprintf(&tmp, "%s%s", cfg.homedir, arg_netfilter_file + 1) == -1)
-						errExit("asprintf");
-					arg_netfilter_file = tmp;
-				}
-
+				arg_netfilter_file = expand_macros(argv[i] + 12);
 				check_netfilter_file(arg_netfilter_file);
 			}
 			else
@@ -2767,16 +2733,7 @@ int main(int argc, char **argv, char **envp) {
 		else if (strncmp(argv[i], "--netfilter6=", 13) == 0) {
 			if (checkcfg(CFG_NETWORK)) {
 				arg_netfilter6 = 1;
-				arg_netfilter6_file = argv[i] + 13;
-
-				// expand tilde
-				if (*arg_netfilter6_file == '~') {
-					char *tmp;
-					if (asprintf(&tmp, "%s%s", cfg.homedir, arg_netfilter6_file + 1) == -1)
-						errExit("asprintf");
-					arg_netfilter6_file = tmp;
-				}
-
+				arg_netfilter6_file = expand_macros(argv[i] + 13);
 				check_netfilter_file(arg_netfilter6_file);
 			}
 			else
@@ -3002,10 +2959,10 @@ int main(int argc, char **argv, char **envp) {
 	}
 	EUID_ASSERT();
 
-	// Note: Only attempt to print non-debug information to stdout after
-	// all profiles have been loaded (because a profile may set arg_quiet)
+	// Note: Only attempt to print non-debug information after all profiles
+	// have been loaded (because a profile may set arg_quiet)
 	if (!arg_quiet)
-		print_version();
+		print_version(stderr);
 
 	// block X11 sockets
 	if (arg_x11_block)

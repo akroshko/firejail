@@ -29,24 +29,26 @@ permissions:  # added using https://github.com/step-security/secure-workflows
 jobs:
   profile-checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895
+      uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142
       with:
         disable-sudo: true
         egress-policy: block
         allowed-endpoints: >
           github.com:443
 
-    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+    - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633
     - name: print env
       run: ./ci/printenv.sh
     - run: python3 --version
 
-#   - name: sort.py
-#     run: >
-#       ./ci/check/profiles/sort.py
-#       etc/inc/*.inc etc/{profile-a-l,profile-m-z}/*.profile
+    - name: sort.py
+      run: >
+        ./ci/check/profiles/sort.py
+        etc/inc/*.inc etc/{profile-a-l,profile-m-z}/*.profile
 # Currently broken (see #5610)
 #   - name: private-etc-always-required.sh
 #     run: >
